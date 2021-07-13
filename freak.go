@@ -1,0 +1,6 @@
+package freak
+
+import (
+  "fmt"
+)
+

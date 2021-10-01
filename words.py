@@ -62,9 +62,9 @@ def filter(answer) :
     line = answer
     help = False
     
-    if re.search("search:*+:", line):
+    if re.search("search:.+:", line):
         try :
-            search_For = re.findall("search:(*+):", line)[0]
+            search_For = re.findall("search:(.+):", line)[0]
             
             if re.search("%[s]", line) :
                 save = True

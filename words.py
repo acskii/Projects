@@ -2,7 +2,6 @@
 
 # Made by Andrew Sameh
 # Finished on : 6:31 PM GMT+2 ~ 23/8/2021 ! (DD/MM/YY)
-# Updated on : 7:26 AM GMT+2 ~ 1/10/2021 | (DD/MM/YY)
 
 # Info:
 # Asks for file (.txt) location and lists top 10 common words
@@ -62,12 +61,14 @@ def filter(answer) :
     line = answer
     help = False
     
-    if re.search("search:", line):
+    if re.search("search:*+:", line):
         try :
-            search_For = re.findall("search:(.+):", line)[0]
+            search_For = re.findall("search:(*+):", line)[0]
             
             if re.search("%[s]", line) :
                 save = True
+            if re.search("\$p", line) :
+                p = False
         except :
             search_For = ""
     else:

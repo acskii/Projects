@@ -2,7 +2,7 @@
 
 # Made by Andrew Sameh
 # Finished on : 6:31 PM GMT+2 ~ 23/8/2021 ! (DD/MM/YY)
-# Updated on : 7:41 PM GMY+2 ~ 1/10/2021 | (DD/MM/YY)
+# Updated on : 8:22 AM GMT+2 ~ 1/10/2021 | (DD/MM/YY)
 
 # Info:
 # Asks for file (.txt) location and lists top 10 common words
@@ -18,7 +18,7 @@
 #   $p          --> Doesn't show results
 #   %?          --> Help
 
-# Lines of Code : 110
+# Lines of Code : 178
 
 import re
 
@@ -32,7 +32,7 @@ flags = [
     ("%s", "")
 ]
 
-message = "Here is all help you need:\nWhen prompted, type in the file location/directory you want the program to use.\n***This program ranks by default the top 10 most common words in the file you specify***\nRECOMMENDED FILE TYPE: .txt\nFlags:\n\tsearch:{pattern}: --> Searches for pattern given and returns number of times it was seen. \n\t<<<<<NO OTHER FLAGS WILL RUN IF THIS IS TYPED: THIS MUST BE TYPED AS FIRST FLAG!<<<<< \n\n\t%l={num} --> Set top ranks from 1 to inf\n\t%m={num} --> Set Maximum word repeats to be shown\n\t$r       --> Ignore true rank of words\n\t$p       --> Doesn't show results\n\t%s={format} --> Saves results in log file with format you set in same directory\n\t%s --> Saves results in a .txt format in the same directory\n\t%?       --> Help\n\nPROGRAM IGNORES WRONG FLAGS\nTo exit program: type 'done'.\nMade by : Andrew Sameh"
+message = "Here is all help you need:\nWhen prompted, type in the file location/directory you want the program to use.\n***This program ranks by default the top 10 most common words in the file you specify***\nRECOMMENDED FILE TYPE: .txt\nFlags:\n\ta:{word}: --> Searches for the SAME word you type and returns results\n\tsearch:{pattern}: --> Searches for pattern given and returns number of times it was seen. \n\t<<<<<NO OTHER FLAGS WILL RUN IF ANY OF THE ABOVE IS TYPED<<<<< \n\n\t%l={num} --> Set top ranks from 1 to inf\n\t%m={num} --> Set Maximum word repeats to be shown\n\t$r       --> Ignore true rank of words\n\t$p       --> Doesn't show results\n\t%s={format} --> Saves results in log file with format you set in same directory\n\t%s --> Saves results in a .txt format in the same directory\n\t%?       --> Help\n\nPROGRAM IGNORES WRONG FLAGS\nTo exit program: type 'done'.\nMade by : Andrew Sameh"
 
 def sort(fileName) :
     try :
@@ -59,12 +59,16 @@ def filter(answer) :
     rank = False
     p = True
     search_For = ""
+    absolute = ""
     line = answer
     help = False
     
-    if re.search("search:.+:", line):
+    if re.search("search:.+:", line) or re.search("a:.+:", line):
         try :
-            search_For = re.findall("search:(.+):", line)[0]
+            if re.search("a:.+:", line):
+                absolute = re.findall("a:(.+):", line)[0]
+            elif re.search("search:.+:", line):
+                search_For = re.findall("search:(.+):", line)[0]
             
             if re.search("%[s]", line) :
                 save = True
@@ -106,7 +110,7 @@ def filter(answer) :
                 if re.search("%\?", line) :
                     help = True
     
-    if line != "done" :
+    if line.lower() != "done" :
         line = "".join( re.findall(".+\.txt", line) )
         
     return {
@@ -115,6 +119,7 @@ def filter(answer) :
         "format": format,
         "line": line,
         "max": max,
+        "absolute_search": absolute,
         "ranks": rank,
         "search": search_For,
         "print": p,
@@ -126,17 +131,17 @@ if __name__ == "__main__" :
     answer = ""
     
     print("Common Word Lister by Andrew Sameh.\n type '%?' if you need help.")
-    while answer != "done" :
+    while answer.lower() != "done" :
         data = filter(input("FileLocation: "))
         answer = data["line"]
         log = []
         
-        if answer != "done" :
+        if answer.lower() != "done" :
             if data["help"] : 
                 print(message)
                 continue
             else:
-                if data["search"] == "" :
+                if data["search"] == "" and data["absolute_search"] == "":
                     log = []
                     if data["num"] == 0 : data["num"] = 10
                     if data["max"] == 0 : data["max"] = None
@@ -160,17 +165,29 @@ if __name__ == "__main__" :
                     for line in handle:
                         index = index + 1
                         line = line.rstrip()
-                            
-                        if re.search(f"{data['search'].lower()}", line.lower()):
-                            amount = len(re.findall(f"{data['search'].lower()}", line.lower()))
-                            patterns = re.findall(f"(\S*?{data['search'].lower()}\S*?)\s", line.lower())
-                            log.append(f"Line[{index}]: {amount} :{patterns}\n")
-                            if data["print"] : print(f"Line[{index}]: {patterns} :Found {amount} time(s).\n")
-                            #re.findall(f"{data['search'].lower()}", line.lower())
-                            gram[data['search']] = gram.get(data['search'], 0) + amount
-                                 
+                        
+                        if data["absolute_search"] == "":
+                            if re.search(f"{data['search'].lower()}", line.lower()):
+                                amount = len(re.findall(f"{data['search'].lower()}", line.lower()))
+                                patterns = re.findall(f"(\S*?{data['search'].lower()}\S*?)\s", line.lower())
+                                if amount > 0:
+                                    log.append(f"Line[{index}]: {amount} :{patterns}\n")
+                                    if data["print"] : print(f"Line[{index}]: {patterns} :Found {amount} time(s).\n")
+                                    #re.findall(f"{data['search'].lower()}", line.lower())
+                                    gram[data['search']] = gram.get(data['search'], 0) + amount
+                        else:
+                            if re.search(f"{data['absolute_search']}", line):
+                                amount = len(re.findall(f"\s{data['absolute_search']}\s", line))
+                                words = re.findall(f"\s({data['absolute_search']})\s", line)
+                                if amount > 0:
+                                    log.append(f"Line[{index}]: {amount} :{words}\n")
+                                    if data["print"] : print(f"Line[{index}]: {words} :Found {amount} time(s).\n")
+                                    gram[data['absolute_search']] = gram.get(data['absolute_search'], 0) + amount
                     try:
-                        print(f"Total times found: {gram[data['search']]}")
+                        if data["absolute_search"] == "":
+                            print(f"Total times found: {gram[data['search']]}")
+                        else:
+                            print(f"Total times found: {gram[data['absolute_search']]}")
                     except:
                         print("Search submitted is not found")
                     #except:

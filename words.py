@@ -2,6 +2,7 @@
 
 # Made by Andrew Sameh
 # Finished on : 6:31 PM GMT+2 ~ 23/8/2021 ! (DD/MM/YY)
+# Updated on : 7:41 PM GMY+2 ~ 1/10/2021 | (DD/MM/YY)
 
 # Info:
 # Asks for file (.txt) location and lists top 10 common words

@@ -191,7 +191,7 @@ if __name__ == "__main__" :
                                 if re.search(f"{data['absolute_search']}", line):
                                     amount = len(re.findall(f"\s{data['absolute_search']}\s", line))
                                     words = re.findall(f"\s({data['absolute_search']})\s", line)
-                                    if amount > 0 and len(patterns) > 0:
+                                    if amount > 0 and len(words) > 0:
                                         log.append(f"Line[{index}]: {amount} :{words}\n")
                                         if data["print"] : print(f"Line[{index}]: {words} :Found {amount} time(s).\n")
                                         gram[data['absolute_search']] = gram.get(data['absolute_search'], 0) + amount
